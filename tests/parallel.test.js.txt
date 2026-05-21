@@ -1,0 +1,19 @@
+const { test, expect } = require('@playwright/test');
+
+// Test 1: Chromium
+test('Chromium test @smoke', async ({ page }) => {
+  await page.goto('https://read.amazon.com');
+  await expect(page).toHaveTitle(/Kindle Books/);
+});
+
+// Test 2: Firefox
+test('Firefox test @smoke', async ({ page }) => {
+  await page.goto('https://read.amazon.com');
+  await expect(page.locator('.kindleSwath')).toBeVisible();
+});
+
+// Test 3: WebKit
+test('WebKit test @smoke', async ({ page }) => {
+  await page.goto('https://read.amazon.com');
+  await expect(page.locator('h1')).toHaveText('Your Library');
+});
