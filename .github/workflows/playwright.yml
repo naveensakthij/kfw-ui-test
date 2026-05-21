@@ -1,25 +1,48 @@
 name: Playwright Tests
 
-on: [push, pull_request]
+# Run on every push to 'main' or any pull request
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   test:
+    # Use Ubuntu latest runner (provided by GitHub)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # Step 1: Checkout your code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Set up Node.js (match version in your local)
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18'  # Use the same Node.js version as local
 
+      # Step 3: Install project dependencies
       - name: Install dependencies
-        run: npm ci
+        run: npm ci  # Uses package-lock.json for consistent installs
 
-      - name: Install Playwright browsers
+      # Step 4: Install Playwright browsers
+      - name: Install Playwright
         run: npx playwright install
 
+      # Step 5: Cache Playwright browsers (optional but speeds up CI)
+      - name: Cache Playwright binaries
+        uses: actions/cache@v4
+        id: cache-playwright
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests
         run: npx playwright test
+        env:
+          # Pass secrets to the test environment
+          AMZN_EMAIL: ${{ secrets.AMZN_EMAIL }}
+          AMZN_PASSWORD: ${{ secrets.AMZN_PASSWORD }}
